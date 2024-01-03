@@ -31,7 +31,7 @@ class MyClient(discord.Client):
             if timestamp == self.timestamp:
                 return
 
-            self.timestamp = self.timestamp
+            self.timestamp = timestamp
 
             value = now["value"]
             value_classification = now["value_classification"]
