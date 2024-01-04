@@ -52,10 +52,24 @@ class MyClient(discord.Client):
         channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID")))
 
         data = fetch_long_short_rate()[0]
-        long_rate = data["longRate"]
-        short_rate = data["shortRate"]
+        binance_data = [d for d in data["list"] if d["exchangeName"] == "Binance"][0]
+        okx_data = [d for d in data["list"] if d["exchangeName"] == "OKX"][0]
+        bybit_data = [d for d in data["list"] if d["exchangeName"] == "Bybit"][0]
 
-        await channel.send(f"[BTC Long/Short Ratio]\nLong {long_rate} % / Short {short_rate} %")
+        obj = {
+            "All": data,
+            "Binance": binance_data,
+            "OKX": okx_data,
+            "Bybit": bybit_data
+        }
+
+        text = "[BTC Long/Short Ratio]\n"
+        for k, v in obj.items():
+            long_rate = v["longRate"]
+            short_rate = v["shortRate"]
+            text += f"\n[{k}]\nLong {long_rate} % / Short {short_rate} %"
+
+        await channel.send(text)
 
     @notify_long_short_ratio.before_loop
     async def before_notify_long_short_ratio(self):
