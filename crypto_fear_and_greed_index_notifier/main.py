@@ -18,9 +18,9 @@ class MyClient(discord.Client):
     async def on_ready(self):
         print(f"Logged in as {self.user}({self.user.id})")
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=10)
     async def notify_fear_greed(self):
-        channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID")))
+        channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID_FEAR_AND_GREED")))
 
         async with httpx.AsyncClient() as client:
             res = await client.get("https://api.coin-stats.com/v2/fear-greed")
@@ -47,9 +47,9 @@ class MyClient(discord.Client):
     async def before_notify_fear_greed(self):
         await self.wait_until_ready()
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=10)
     async def notify_long_short_ratio(self):
-        channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID")))
+        channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID_LONG_SHORT_RATIO")))
 
         data = fetch_long_short_rate()[0]
         binance_data = [d for d in data["list"] if d["exchangeName"] == "Binance"][0]
@@ -65,9 +65,12 @@ class MyClient(discord.Client):
 
         text = "[BTC Long/Short Ratio]\n"
         for k, v in obj.items():
+            long_vol = v["longVolUsd"]
+            short_vol = v["shortVolUsd"]
+            ratio = round(long_vol / short_vol, 2)
             long_rate = v["longRate"]
             short_rate = v["shortRate"]
-            text += f"\n[{k}]\nLong {long_rate} % / Short {short_rate} %"
+            text += f"\n[{k}]\n{ratio} - Long {long_rate} % / Short {short_rate} %"
 
         await channel.send(text)
 
@@ -75,9 +78,9 @@ class MyClient(discord.Client):
     async def before_notify_long_short_ratio(self):
         await self.wait_until_ready()
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=10)
     async def notify_funding_rate(self):
-        channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID")))
+        channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID_FUNDING_RATE")))
 
         data = fetch_funding_rate()
 
