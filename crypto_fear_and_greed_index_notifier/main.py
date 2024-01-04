@@ -3,6 +3,8 @@ import discord
 from discord.ext import tasks
 import httpx
 
+from coinglass import fetch_long_short_rate
+
 
 class MyClient(discord.Client):
     def __init__(self, *args, **kwargs):
@@ -10,13 +12,14 @@ class MyClient(discord.Client):
         self.timestamp = None
 
     async def setup_hook(self):
-        self.notify.start()
+        self.notify_fear_greed.start()
+        self.notify_long_short_ratio.start()
 
     async def on_ready(self):
         print(f"Logged in as {self.user}({self.user.id})")
 
     @tasks.loop(hours=1)
-    async def notify(self):
+    async def notify_fear_greed(self):
         channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID")))
 
         async with httpx.AsyncClient() as client:
@@ -40,8 +43,22 @@ class MyClient(discord.Client):
                 f"[Crypto Fear and Greed Index]\n{value} - {value_classification}"
             )
 
-    @notify.before_loop
-    async def before_notify(self):
+    @notify_fear_greed.before_loop
+    async def before_notify_fear_greed(self):
+        await self.wait_until_ready()
+
+    @tasks.loop(hours=1)
+    async def notify_long_short_ratio(self):
+        channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID")))
+
+        data = fetch_long_short_rate()[0]
+        long_rate = data["longRate"]
+        short_rate = data["shortRate"]
+
+        await channel.send(f"[BTC Long/Short Ratio]\nLong {long_rate} % / Short {short_rate} %")
+
+    @notify_long_short_ratio.before_loop
+    async def before_notify_long_short_ratio(self):
         await self.wait_until_ready()
 
 
