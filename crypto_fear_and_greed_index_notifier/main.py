@@ -2,7 +2,7 @@ import os
 import discord
 from discord.ext import tasks
 import httpx
-from coinglass import fetch_funding_rate, fetch_long_short_rate
+from coinglass import fetch_funding_rate, fetch_long_short_rate, fetch_open_interest
 
 
 class MyClient(discord.Client):
@@ -14,6 +14,7 @@ class MyClient(discord.Client):
         self.notify_fear_greed.start()
         self.notify_long_short_ratio.start()
         self.notify_funding_rate.start()
+        self.notify_open_interest.start()
 
     async def on_ready(self):
         print(f"Logged in as {self.user}({self.user.id})")
@@ -108,6 +109,23 @@ class MyClient(discord.Client):
 
     @notify_funding_rate.before_loop
     async def before_notify_funding_rate(self):
+        await self.wait_until_ready()
+
+    @tasks.loop(minutes=10)
+    async def notify_open_interest(self):
+        channel = self.get_channel(int(os.getenv("DISCORD_CHANNEL_ID_OPEN_INTEREST")))
+
+        data = fetch_open_interest()
+        data = [d for d in data if d["symbol"] == "BTC"][0]
+
+        h1 = data["h1OiChangePercent"]
+        h4 = data["h4OiChangePercent"]
+        h24 = data["h24OiChangePercent"]
+
+        await channel.send(f"[BTC Open Interest Change]\n\n1h: {h1} %\n4h: {h4} %\n24h: {h24}")
+
+    @notify_open_interest.before_loop
+    async def before_notify_open_interest(self):
         await self.wait_until_ready()
 
 
