@@ -2,6 +2,8 @@ FROM python:3.12
 
 WORKDIR /app
 
+RUN apt update && apt upgrade -y && rm -rf /var/lib/apt/lists/*
+
 RUN pip install poetry
 
 COPY pyproject.toml poetry.lock ./
