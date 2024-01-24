@@ -14,7 +14,7 @@ WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install
+RUN poetry install --no-cache
 
 COPY . .
 
