@@ -2,9 +2,9 @@ FROM python:3.12-alpine
 
 RUN apk update --no-cache
 
-RUN pip install poetry
-
 RUN apk add --no-cache gcc musl-dev
+
+RUN pip install poetry
 
 RUN adduser -S notifier
 
