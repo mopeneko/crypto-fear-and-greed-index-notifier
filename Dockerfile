@@ -1,12 +1,12 @@
-FROM python:3.12
+FROM python:3.12-alpine
 
-RUN apt update && \
-    apt upgrade -y && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk update --no-cache
 
 RUN pip install poetry
 
-RUN useradd -m notifier
+RUN apk add --no-cache gcc musl-dev
+
+RUN adduser -S notifier
 
 USER notifier
 
