@@ -5,6 +5,10 @@ RUN apt update && \
     apt install -y python3-poetry && \
     rm -rf /var/lib/apt/lists/*
 
+RUN useradd -m notifier
+
+USER notifier
+
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
