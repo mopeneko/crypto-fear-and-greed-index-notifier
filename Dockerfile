@@ -2,8 +2,9 @@ FROM python:3.12
 
 RUN apt update && \
     apt upgrade -y && \
-    apt install -y python3-poetry && \
     rm -rf /var/lib/apt/lists/*
+
+RUN pip install poetry
 
 RUN useradd -m notifier
 
