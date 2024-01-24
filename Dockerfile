@@ -2,7 +2,7 @@ FROM python:3.12-alpine
 
 RUN apk update --no-cache
 
-RUN apk add --no-cache gcc musl-dev
+RUN apk add --no-cache gcc musl-dev libffi-dev
 
 RUN pip install poetry
 
