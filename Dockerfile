@@ -4,7 +4,7 @@ RUN apk update --no-cache
 
 RUN apk add --no-cache gcc musl-dev libffi-dev
 
-RUN pip install poetry
+RUN pip install --no-cache-dir poetry
 
 RUN adduser -S notifier
 
