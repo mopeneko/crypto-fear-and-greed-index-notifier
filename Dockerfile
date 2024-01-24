@@ -1,10 +1,11 @@
 FROM python:3.12
 
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -y python3-poetry && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-
-RUN apt update && apt upgrade -y && rm -rf /var/lib/apt/lists/*
-
-RUN pip install poetry
 
 COPY pyproject.toml poetry.lock ./
 
